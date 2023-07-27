@@ -5,45 +5,43 @@ class Helpers:
 	def __init__(self):
 		pass
 
-	def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
-	    dim = None
-	    (h, w) = image.shape[:2]
-	    if width is None and height is None:
-	        return image
-	    if width is None:
-	        r = height / float(h)
-	        dim = (int(w * r), height)
-	    else:
-	        r = width / float(w)
-	        dim = (width, int(h * r))
-	    resized = cv2.resize(image, dim, interpolation=inter)
+	def resize(self, width=None, height=None, inter=cv2.INTER_AREA):
+		dim = None
+		(h, w) = self.shape[:2]
+		if width is None and height is None:
+			return self
+		if width is None:
+		    r = height / float(h)
+		    dim = (int(w * r), height)
+		else:
+		    r = width / float(w)
+		    dim = (width, int(h * r))
+		return cv2.resize(self, dim, interpolation=inter)
 
-	    return resized
-
-	def grab_contours(cnts):
-		if len(cnts) == 2:
-			cnts = cnts[0]
-		elif len(cnts) == 3:
-			cnts = cnts[1]
+	def grab_contours(self):
+		if len(self) == 2:
+			self = self[0]
+		elif len(self) == 3:
+			self = self[1]
 		else:
 			raise Exception('The length of the contour must be 2 or 3.')
-		return cnts
+		return self
 
 
-	def orders(pts):
+	def orders(self):
 		rect = np.zeros((4, 2), dtype = "float32")
-		s = pts.sum(axis = 1)
+		s = self.sum(axis = 1)
 
-		rect[0] = pts[np.argmin(s)]
-		rect[2] = pts[np.argmax(s)]
+		rect[0] = self[np.argmin(s)]
+		rect[2] = self[np.argmax(s)]
 
-		diff = np.diff(pts, axis = 1)
-		rect[1] = pts[np.argmin(diff)]
-		rect[3] = pts[np.argmax(diff)]
+		diff = np.diff(self, axis = 1)
+		rect[1] = self[np.argmin(diff)]
+		rect[3] = self[np.argmax(diff)]
 
 		return rect
 
-	def transform(image, pts):
+	def transform(self, pts):
 		rect = Helpers.orders(pts)
 		(tl, tr, br, bl) = rect
 
@@ -62,6 +60,4 @@ class Helpers:
 			[0, maxHeight - 1]], dtype = "float32")
 
 		M = cv2.getPerspectiveTransform(rect, dst)
-		warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
-
-		return warped
+		return cv2.warpPerspective(self, M, (maxWidth, maxHeight))
